@@ -1,10 +1,13 @@
 all: libmtouch.jnilib
 
+CFLAGS += -std=c99 -Wall -Werror -O3
+CFLAGS += -arch i386 -arch x86_64
+
 mtouch.o: mtouch.c
-	$(CC) -std=c99 -Wall -Werror -O3 -I/System/Library/Frameworks/JavaVM.framework/Headers -c -o $@ $<
+	$(CC) $(CFLAGS)  -I/System/Library/Frameworks/JavaVM.framework/Headers -c -o $@ $<
 
 libmtouch.jnilib: mtouch.o
-	$(CC) -dynamiclib  -F/System/Library/PrivateFrameworks -framework MultitouchSupport -framework JavaVM -o $@ $<
+	$(CC) $(CFLAGS) -dynamiclib  -F/System/Library/PrivateFrameworks -framework MultitouchSupport -framework JavaVM -o $@ $<
 
 clean:
 	- rm -f *class *jnilib *.o
