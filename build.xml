@@ -42,4 +42,10 @@
     <copy file="${source}/mtouch/libmtouch.jnilib" todir="${dist}"/>
   </target>
 
+  <target name="run" depends="compile_mtouch,compile_jni">
+    <exec executable="java">
+      <arg line="-Djava.library.path=src/mtouch -cp build/mtouch mtouch.MultiTouch"/>
+    </exec>
+  </target>
+
 </project>
