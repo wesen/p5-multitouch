@@ -11,6 +11,14 @@
 #include <jni.h>
 #include "mtouch_MultiTouch.h"
 
+//#define DEBUG 1
+
+/***************************************************************************
+ *
+ * Multitouch API
+ *
+ ***************************************************************************/
+
 typedef struct { float x,y; } mtPoint;
 typedef struct { mtPoint pos,vel; } mtReadout;
 
@@ -41,11 +49,9 @@ void MTDeviceStop(MTDeviceRef);
  *
  ***************************************************************************/
 
-static jclass cls;
 static jobject obj;
 static jmethodID mid;
 
-#define MT_CLASS "mtouch/MultiTouch"
 #define MT_METHOD "onFingerMove"
 #define MT_SIG "(IFF)V"
 
@@ -53,8 +59,6 @@ static MTDeviceRef mtouch_dev;
 static bool mtouch_started = false;
 static JavaVM *jvm = NULL;
 
-
-//#define DEBUG 1
 
 int callback(int device, Finger *data, int nFingers, double timestamp, int frame) {
   JNIEnv *env = NULL;
@@ -82,12 +86,6 @@ int callback(int device, Finger *data, int nFingers, double timestamp, int frame
              f->identifier, f->state, f->foo3, f->foo4,
              f->size, f->unk2);
 #endif
-      /*
-        (*env)->CallStaticVoidMethod(env, cls, mid,
-        i,
-        f->normalized.pos.x,
-        f->normalized.pos.y);
-      */
       if (obj != NULL) {
         if (mid) {
           (*env)->CallVoidMethod(env, obj, mid, 
@@ -112,7 +110,6 @@ JNIEXPORT void JNICALL Java_mtouch_MultiTouch_startMultiTouch(JNIEnv *env, jclas
   MTRegisterContactFrameCallback(mtouch_dev, callback);
   MTDeviceStart(mtouch_dev, 0);
   mtouch_started = true;
-  printf("mtouch started\n");
 }
 
 JNIEXPORT void JNICALL Java_mtouch_MultiTouch_stopMultiTouch(JNIEnv *env, jclass obj) {
@@ -123,30 +120,6 @@ JNIEXPORT void JNICALL Java_mtouch_MultiTouch_stopMultiTouch(JNIEnv *env, jclass
   MTDeviceStop(mtouch_dev);
   mtouch_dev = NULL;
   mtouch_started = false;
-}
-
-JNIEXPORT void JNICALL Java_mtouch_MultiTouch_registerListener(JNIEnv *env, jclass obj) {
-  if (jvm == NULL) {
-    (*env)->GetJavaVM(env, &jvm);
-  }
-
-  cls = (*env)->FindClass(env, MT_CLASS);
-
-  /* make new global ref for callback thread */
-  cls = (*env)->NewGlobalRef(env, cls);
-  if (cls == NULL) {
-    printf("Java class %s not found\n", MT_CLASS);
-    goto error;
-  } else {
-    mid = (*env)->GetStaticMethodID(env, cls, MT_METHOD, MT_SIG);
-    if (mid == NULL) {
-      printf("Java callback method %s not found!\n", MT_METHOD);
-      goto error;
-    }
-  }
-
- error:
-  return;
 }
 
 JNIEXPORT void JNICALL Java_mtouch_MultiTouch_unregisterListener(JNIEnv *env, jclass obj) {
@@ -164,22 +137,20 @@ JNIEXPORT void JNICALL Java_mtouch_MultiTouch_registerObject(JNIEnv *env, jclass
     (*env)->GetJavaVM(env, &jvm);
   }
 
-  obj = (*env)->NewGlobalRef(env, _obj);
-  cls = (*env)->GetObjectClass(env, obj);
-
   /* make new global ref for callback thread */
-  cls = (*env)->NewGlobalRef(env, cls);
-  if (cls == NULL) {
-    printf("Java class %s not found\n", MT_CLASS);
+  obj = (*env)->NewGlobalRef(env, _obj);
+  jclass _cls = (*env)->GetObjectClass(env, obj);
+
+  if (_cls == NULL) {
+    printf("Java class for referenced object not found\n");
     goto error;
   } else {
-    mid = (*env)->GetMethodID(env, cls, MT_METHOD, MT_SIG);
+    mid = (*env)->GetMethodID(env, _cls, MT_METHOD, MT_SIG);
     if (mid == NULL) {
       printf("Java callback method %s not found!\n", MT_METHOD);
       goto error;
     }
   }
-  printf("java object registered\n");
 
  error:
   return;
