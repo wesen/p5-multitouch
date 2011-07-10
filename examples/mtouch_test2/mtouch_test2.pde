@@ -2,10 +2,10 @@ import mtouch.*;
 
 float xs[] = new float[8];
 float ys[] = new float[8];
-color colors[] = new color[4];
+color colors[] = new color[8];
 
 public void onFingerMove(int finger, float x, float y) {
-  if (finger < xs.length) {
+  if (finger < colors.length) {
     xs[finger] = x;
     ys[finger] = y;
   }
@@ -21,19 +21,21 @@ void setup() {
   colors[0] = color(255, 0, 0);
   colors[1] = color(0, 255, 0);
   colors[2] = color(0, 0, 255);
-  colors[3] = color(255, 255, 0);
+  colors[3] = color(255, 0, 255);
+  colors[4] = color(0, 255, 255);
+  colors[5] = color(127, 127, 127);
+  colors[6] = color(255, 255, 255);
+  colors[7] = color(255, 255, 0);
 }
 
 void draw() {
   background(0);
   noStroke();
   for (int i = 0; i < colors.length; i++) {
-    float f1x = xs[i*2];
-    float f2x = xs[i*2 + 1];
-    float f1y = ys[i*2];
-    float f2y = ys[i*2+1];
+    float fx = xs[i] * width;
+    float fy = ys[i] * height;
     fill(colors[i]);
-    rect(f1x * width, f1y * height, (f2x - f1x) * width, (f2y - f1y) * height);
+    ellipse(fx - 10, fy - 10, 20, 20);
   }
 }
 
