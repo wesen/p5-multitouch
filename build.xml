@@ -1,0 +1,45 @@
+<project name="mtouch" default="dist" basedir=".">
+  <description>
+    mtouch ant build file
+  </description>
+
+  <!-- set global properties for this build -->
+  <property name="source" location="./src"/>
+  <property name="build" location="./build"/>
+  <property name="dist"  location="./dist/mtouch"/>
+
+  <target name="clean">
+    <delete dir="${dist}"/>
+    <delete dir="${build}"/>
+    <exec executable="make">
+      <arg line="-C ${source}/mtouch -f ${source}/mtouch/Makefile clean"/>
+    </exec>
+  </target>
+  
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${build}/mtouch"/>
+  </target>
+
+  <target name="compile_mtouch" depends="init" description="compile the source " >
+    <javac srcdir="${source}/mtouch" destdir="${build}/mtouch" source="1.5" />
+  </target>
+
+  <target name="compile_jni">
+    <exec executable="make">
+      <arg line="-C ${source}/mtouch -f ${source}/mtouch/Makefile"/>
+    </exec>
+  </target>
+  
+  <target name="dist" depends="compile_mtouch,compile_jni" description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${dist}/library"/>
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/library/mtouch.jar" basedir="${build}/mtouch"/>
+    <copy file="${source}/mtouch/libmtouch.jnilib" todir="${dist}"/>
+  </target>
+
+</project>
