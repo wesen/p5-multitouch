@@ -33,7 +33,7 @@ void draw() {
   noStroke();
   for (int i = 0; i < colors.length; i++) {
     float fx = xs[i] * width;
-    float fy = ys[i] * height;
+    float fy = (1 - ys[i]) * height;
     fill(colors[i]);
     ellipse(fx - 10, fy - 10, 20, 20);
   }
