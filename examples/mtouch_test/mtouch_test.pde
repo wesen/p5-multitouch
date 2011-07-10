@@ -11,7 +11,6 @@ public void onFingerMove(int finger, float x, float y) {
   }
 }
 
-
 void setup() {
   MultiTouch.registerObject(this);
   MultiTouch.startMultiTouch();
