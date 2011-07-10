@@ -5,7 +5,9 @@
  * (c) Manuel Odendahl - wesen@ruinwesen.com
  */
 
-class MultiTouch {
+package mtouch;
+
+public class MultiTouch {
   static {
     System.loadLibrary("mtouch");
   }
@@ -16,12 +18,21 @@ class MultiTouch {
   public static native void registerListener();
   public static native void unregisterListener();
 
-  public static void onFingerMove(int finger, float x, float y) {
-    System.out.println("finger: " + finger + " at " + x + ", " + y);
-  }
+  public static native void registerObject(Object obj);
+
+  public static class CallbackObject {
+    public CallbackObject() {
+    }
+
+    public void onFingerMove(int finger, float x, float y) {
+      System.out.println("finger: " + finger + " at " + x + ", " + y);
+    }
+  };
 
   public static void main(String args[]) {
-    registerListener();
+    CallbackObject obj = new CallbackObject();
+    
+    registerObject(obj);
     startMultiTouch();
 
     try { while(true) { Thread.sleep(5000); } } catch (Exception e) {};
